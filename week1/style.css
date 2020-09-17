@@ -1,0 +1,17 @@
+/* style.css */
+
+html, body {
+  height: 100%;
+  border: 0px;
+}
+
+body {
+  margin: 0px !important;
+  display: flex;
+  overflow: hidden; /* Hide scrollbars */
+/*   /* This centers our sketch horizontally. */ */
+  justify-content: center;
+
+  /* This centers our sketch vertically. */
+  align-items: center;
+}
