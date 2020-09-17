@@ -1,17 +1,5 @@
 let mic;
 let micStarted = false;
-let startMicButton;
-
-let startTime = 0;
-let speedSlider, sizeSlider, lerpSlider;
-
-// values for storing the lowest and highest recorded volume
-let maxVolume = 0.2;
-let minVolume = 0.0;
-
-let lastVolume = 0.0;
-let lastX = 0.5;
-let lastY = 0.0;
 
 // If the window resizes, resize the canvas to fit it
 function windowResized() {
@@ -25,32 +13,14 @@ let sliders = {};
 // sliderConfigs array if you add more objects to it, the sliders will automatically generate
 let sliderConfigs = [
     {
-        name: "speed",
-        min: 0.1,
+        name: "scale",
+        min: 0,
         max: 2.0,
-        current: 0.75,
+        current: 0.2,
         step: 0.1,
         x: 30,
         y: 30
     },
-    {
-        name: "ball size",
-        min: 10,
-        max: 500,
-        current: 100,
-        step: 1,
-        x: 30,
-        y: 50
-    },
-    {
-        name: "smoothing",
-        min: 0.01,
-        max: 0.99,
-        current: 0.75,
-        step: 0.01,
-        x: 0,
-        y: 0
-  }
 ];
 
 function setup() {
@@ -59,36 +29,19 @@ function setup() {
     // We have to start the mic in order to get data coming in
 
     // set the sliders up
+    setupSliders(sliderConfigs);
 
     // This will automatically start the mic when the sketch starts
     startMic();
 
-    // If you have trouble with the mic not getting input, you can try this instead.
-    // It will add a button to press to start the mic after the app is started.
-    /*startMicButton = createButton("Start Mic");
-    startMicButton.position(windowWidth - 120, windowHeight - 119);
-    startMicButton.mousePressed(startMic);
-    */
-
     // create the canvas to be the full size of the window
     createCanvas(innerWidth, innerHeight);
-
-    // set the starting time so we can know how much time has elapsed
-    startTime = millis();
 
     // we dont need the stroke
     noStroke();
     background(0);
 }
 
-// Check our min/max thresholds
-function checkVolumeThresholds(volume) {
-    if (volume > maxVolume) maxVolume = volume;
-    if (volume < minVolume) minVolume = volume;
-}
-
-let threshold = 0
-const TOLERANCE = 0.1
 
 let rectangles = []
 
@@ -147,10 +100,9 @@ function draw() {
     let volume = mic.getLevel();
 
     // check the volume against the minimum/maximum variables
-    //checkVolumeThresholds(volume);
 
     // map the loudness to a value between 0.0 and 1.0 using minVolume/maxVolume as boundaries
-    let mappedVolume = map(volume, minVolume, maxVolume, 0.0, 1.0);
+    let mappedVolume = map(volume, 0, sliders['scale'].value(), 0.0, 1.0);
     rbuf.enq(mappedVolume)
     rbuf_fast.enq(mappedVolume)
 
@@ -159,29 +111,38 @@ function draw() {
 
     spawnRectangle(mappedVolume, average < faverage - 0.05 ? 0.5 : 0)
 
-    //set the fill to be a gradient with red towards the bottom and green towards the top
-    //fill(map(smoothY,0,innerHeight,0,255),0, map(smoothX,0,innerWidth,100,255), 200);
     fill(255);
-
-    // draw our ball where it belongs, we use % to keep the X value wrapped within the canvas width
-    //ellipse(smoothX % innerWidth, smoothY, ballSize, ballSize);
 
 }
 
-// function for starting and stopping the microphone, can be used with a button
-function startMic() {
+function mouseClicked() {
+    console.log('clickk')
+    startMic();
+}
 
+function startMic() {
     if (!micStarted) {
         userStartAudio()
         mic.start();
     } else {
         mic.stop();
     }
-
     micStarted = !micStarted;
 }
 
+// this is the function that will generate sliders from the config objects
+function setupSliders(configsArray) {
+    // iterates over the items in sliderConfigs
+    for (let i = 0; i < configsArray.length; i++) {
+        // s is the current slider config using i as an index
+        let s = configsArray[i];
 
+        // set up a slider for that config
+        sliders[s.name] = createSlider(s.min, s.max, s.current, s.step);
+        sliders[s.name].position(s.x, s.y);
+        sliders[s.name].style("width", "150px");
+    }
+}
 
 /**
  * From https://raw.githubusercontent.com/janogonzalez/ringbufferjs/master/index.js
