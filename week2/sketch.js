@@ -79,16 +79,16 @@ function plot(spectrum) {
         //for (let i = 0; i < spectrum.length; i++) {
         push()
         let b = map(120 * spectrum[i], 0, 255, 1, 0)
-        strokeWeight(map(b, 0, 1, 0, 8))
-        let hue = map(spectralCentroid, 0, FFTSIZE / 2, 360, 0).toFixed(0)
+        strokeWeight(map(b, 0, 1, 0.1, 8))
+        let hue = (Math.sqrt(map(spectralCentroid, 0, FFTSIZE / 2, 0, 1)) * 360).toFixed(0)
         let l = map(i, 0, spectrum.length, 50, 100)
         let s = map(i, 0, spectrum.length, 90, 25)
-        let c = color(`hsla(${hue}, ${s}%, ${l}%, ${(1-b).toFixed(0)})`)
+        let c = color(`hsla(${360 - hue}, ${s}%, ${l}%, ${(1-b).toFixed(0)})`)
         stroke(c)
         translate(width / 2, height / 2)
         rotate(frameCount / 100)
         //let scale = Math.log(i) * 64
-        let scale = i * i / 12
+        let scale = Math.sqrt(i + 1) * 32
         rect(0, 0, scale, scale, spectralFlatness * scale)
         pop()
         //text(spectrum[i].toFixed(2), i * 10, i * 10)
