@@ -74,19 +74,21 @@ function draw() {
 
 function plot(spectrum) {
     fill('rgba(0,0,0,0)');
-    strokeWeight(2)
     rectMode(RADIUS)
     for (let i = spectrum.length - 1; i >= 0; i--) {
         //for (let i = 0; i < spectrum.length; i++) {
         push()
-        let b = map(255 * spectrum[i], 0, 255, 1, 0)
-        let hue = map(spectralCentroid, 0, FFTSIZE / 2, 360, 60).toFixed(0)
+        let b = map(120 * spectrum[i], 0, 255, 1, 0)
+        strokeWeight(map(b, 0, 1, 0, 8))
+        let hue = map(spectralCentroid, 0, FFTSIZE / 2, 360, 0).toFixed(0)
         let l = map(i, 0, spectrum.length, 50, 100)
-        let c = color(`hsla(${hue}, ${l}%, 80%, ${(1-b).toFixed(0)})`)
+        let s = map(i, 0, spectrum.length, 90, 25)
+        let c = color(`hsla(${hue}, ${s}%, ${l}%, ${(1-b).toFixed(0)})`)
         stroke(c)
         translate(width / 2, height / 2)
         rotate(frameCount / 100)
-        let scale = i * 4
+        //let scale = Math.log(i) * 64
+        let scale = i * i / 12
         rect(0, 0, scale, scale, spectralFlatness * scale)
         pop()
         //text(spectrum[i].toFixed(2), i * 10, i * 10)
